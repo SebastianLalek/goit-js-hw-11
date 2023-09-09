@@ -10,9 +10,8 @@ export function getImages(str) {
     image_type: 'photo',
     orientation: 'horizontal',
     safesearch: true,
+    per_page: 40,
   };
 
   return axios.get(url, { params }).then(response => response.data.hits);
 }
-
-console.log(getImages('cat'));
