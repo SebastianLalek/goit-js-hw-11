@@ -13,7 +13,5 @@ export function getImages(str) {
     per_page: 40,
   };
 
-  return axios.get(url, { params });
+  return axios.get(url, { params }).then(response => response.data.hits);
 }
-
-console.log(getImages('cat'));
