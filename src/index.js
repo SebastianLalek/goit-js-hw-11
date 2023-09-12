@@ -1,6 +1,5 @@
 import { getImages } from './js/pixabay-api';
 import { Notify } from 'notiflix';
-import { currentPage } from './js/pixabay-api';
 
 const form = document.querySelector('#search-form');
 const gallery = document.querySelector('.gallery');
