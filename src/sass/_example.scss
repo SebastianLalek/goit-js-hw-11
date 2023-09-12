@@ -4,7 +4,7 @@ body {
   line-height: 1.5;
   background-color: #fff;
   color: #2f2f37;
-  max-width: 1200px;
+  max-width: 100%;
   margin:auto;
   padding: 16px;
   box-sizing: border-box;
@@ -13,10 +13,6 @@ body {
 .search-form {
   margin: 15px;
   text-align: center;
-}
-
-button {
-  display: none;
 }
 
 .gallery {
@@ -49,4 +45,8 @@ img {
   text-align: center;
   white-space: pre-line;
   margin: 0;
+}
+
+.hidden {
+  display: none;
 }

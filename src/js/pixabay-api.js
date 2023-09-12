@@ -3,6 +3,8 @@ import axios from 'axios';
 const url = 'https://pixabay.com/api/';
 const apiKey = '39310150-ae6655c0c5d929a5c6e93be30';
 
+let currentPage = 1;
+
 export function getImages(str) {
   const params = {
     key: apiKey,
@@ -10,6 +12,7 @@ export function getImages(str) {
     image_type: 'photo',
     orientation: 'horizontal',
     safesearch: true,
+    page: currentPage,
     per_page: 40,
   };
 

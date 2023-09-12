@@ -1,13 +1,19 @@
 import { getImages } from './js/pixabay-api';
 import { Notify } from 'notiflix';
+import { currentPage } from './js/pixabay-api';
 
 const form = document.querySelector('#search-form');
 const gallery = document.querySelector('.gallery');
+const loadMoreBtn = document.querySelector('.load-more');
+
+let searchQuery;
+let currentPage = 1;
 
 async function fetchImages(value) {
   const imagesArr = await getImages(value);
 
   if (imagesArr.length === 0) {
+    loadMoreBtn.classList.add('hidden');
     return Notify.failure(
       "We're sorry, but you've reached the end of search results."
     );
@@ -16,7 +22,7 @@ async function fetchImages(value) {
   const markup = imagesArr
     .map(el => {
       return `<div class="photo-card">
-        <img src="${el.webformatURL}" alt="${el.tags}" loading="lazy" />
+        <img src="${el.webformatURL}" alt="${el.tags}" srcset="${el.largeImageURL}" loading="lazy" />
         <div class="info">
           <p class="info-item">
             <b>Likes</b>
@@ -39,19 +45,30 @@ async function fetchImages(value) {
     })
     .join('');
 
-  gallery.innerHTML = markup;
+  gallery.insertAdjacentHTML('beforeend', markup);
 }
 
 form.addEventListener('submit', e => {
   e.preventDefault();
 
+  currentPage = 1;
+
   gallery.innerHTML = '';
 
-  const searchQuery = form.searchQuery.value;
+  searchQuery = form.searchQuery.value;
 
   fetchImages(searchQuery);
+
+  loadMoreBtn.classList.remove('hidden');
 });
 
 gallery.addEventListener('click', e => {
-  console.log(e.target);
+  console.log(e.target.srcset);
+});
+
+loadMoreBtn.addEventListener('click', e => {
+  currentPage += 1;
+
+  fetchImages(searchQuery);
+  console.log(currentPage);
 });
