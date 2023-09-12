@@ -7,9 +7,12 @@ const loadMoreBtn = document.querySelector('.load-more');
 
 let searchQuery;
 let currentPage = 1;
+let totalHits;
 
-async function fetchImages(value) {
-  const imagesArr = await getImages(value);
+async function fetchImages(value, page) {
+  const imagesData = await getImages(value, page);
+  const imagesArr = imagesData.hits;
+  totalHits = imagesData.totalHits;
 
   if (imagesArr.length === 0) {
     loadMoreBtn.classList.add('hidden');
@@ -56,7 +59,7 @@ form.addEventListener('submit', e => {
 
   searchQuery = form.searchQuery.value;
 
-  fetchImages(searchQuery);
+  fetchImages(searchQuery, currentPage);
 
   loadMoreBtn.classList.remove('hidden');
 });
@@ -67,7 +70,12 @@ gallery.addEventListener('click', e => {
 
 loadMoreBtn.addEventListener('click', e => {
   currentPage += 1;
-
-  fetchImages(searchQuery);
-  console.log(currentPage);
+  fetchImages(searchQuery, currentPage);
 });
+
+if (gallery.children.length === totalHits) {
+  loadMoreBtn.classList.add('hidden');
+  return Notify.info(
+    "We're sorry, but you've reached the end of search results."
+  );
+}
