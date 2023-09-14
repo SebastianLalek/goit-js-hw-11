@@ -1,5 +1,7 @@
 import { getImages } from './js/pixabay-api';
 import { Notify } from 'notiflix';
+import SimpleLightbox from 'simplelightbox';
+import 'simplelightbox/dist/simple-lightbox.min.css';
 
 const form = document.querySelector('#search-form');
 const gallery = document.querySelector('.gallery');
@@ -8,6 +10,7 @@ const loadMoreBtn = document.querySelector('.load-more');
 let searchQuery;
 let currentPage = 1;
 let totalHits;
+let lightbox;
 
 async function fetchImages(value, page) {
   const imagesData = await getImages(value, page);
@@ -24,7 +27,7 @@ async function fetchImages(value, page) {
   const markup = imagesArr
     .map(el => {
       return `<div class="photo-card">
-        <img src="${el.webformatURL}" alt="${el.tags}" srcset="${el.largeImageURL}" loading="lazy" />
+        <a href="${el.largeImageURL}"><img src="${el.webformatURL}" alt="${el.tags}" loading="lazy" /></a>
         <div class="info">
           <p class="info-item">
             <b>Likes</b>
@@ -48,6 +51,13 @@ async function fetchImages(value, page) {
     .join('');
 
   gallery.insertAdjacentHTML('beforeend', markup);
+
+  if (currentPage === 1) {
+    lightbox = new SimpleLightbox('.gallery a');
+    return Notify.success(`Hooray! We found ${totalHits} images.`);
+  }
+
+  lightbox.refresh();
 }
 
 form.addEventListener('submit', e => {
@@ -64,10 +74,6 @@ form.addEventListener('submit', e => {
   loadMoreBtn.classList.remove('hidden');
 });
 
-gallery.addEventListener('click', e => {
-  console.log(e.target.srcset);
-});
-
 loadMoreBtn.addEventListener('click', e => {
   currentPage += 1;
   fetchImages(searchQuery, currentPage);
@@ -79,3 +85,5 @@ if (gallery.children.length === totalHits) {
     "We're sorry, but you've reached the end of search results."
   );
 }
+
+gallery.addEventListener('click', e => e.preventDefault());
