@@ -5,7 +5,6 @@ import 'simplelightbox/dist/simple-lightbox.min.css';
 
 const form = document.querySelector('#search-form');
 const gallery = document.querySelector('.gallery');
-const loadMoreBtn = document.querySelector('.load-more');
 
 let searchQuery;
 let currentPage = 1;
@@ -16,13 +15,6 @@ async function fetchImages(value, page) {
   const imagesData = await getImages(value, page);
   const imagesArr = imagesData.hits;
   totalHits = imagesData.totalHits;
-
-  if (imagesArr.length === 0) {
-    loadMoreBtn.classList.add('hidden');
-    return Notify.failure(
-      "We're sorry, but you've reached the end of search results."
-    );
-  }
 
   const markup = imagesArr
     .map(el => {
@@ -51,13 +43,8 @@ async function fetchImages(value, page) {
     .join('');
 
   gallery.insertAdjacentHTML('beforeend', markup);
-
-  if (currentPage === 1) {
-    lightbox = new SimpleLightbox('.gallery a');
-    return Notify.success(`Hooray! We found ${totalHits} images.`);
-  }
-
-  lightbox.refresh();
+  lightbox = new SimpleLightbox('.gallery a');
+  showNotification();
 }
 
 form.addEventListener('submit', e => {
@@ -70,20 +57,36 @@ form.addEventListener('submit', e => {
   searchQuery = form.searchQuery.value;
 
   fetchImages(searchQuery, currentPage);
-
-  loadMoreBtn.classList.remove('hidden');
 });
-
-loadMoreBtn.addEventListener('click', e => {
-  currentPage += 1;
-  fetchImages(searchQuery, currentPage);
-});
-
-if (gallery.children.length === totalHits) {
-  loadMoreBtn.classList.add('hidden');
-  return Notify.info(
-    "We're sorry, but you've reached the end of search results."
-  );
-}
 
 gallery.addEventListener('click', e => e.preventDefault());
+
+window.addEventListener('scroll', () => {
+  if (
+    window.scrollY + window.innerHeight >=
+    document.documentElement.scrollHeight
+  ) {
+    currentPage += 1;
+    fetchImages(searchQuery, currentPage);
+  }
+
+  lightbox.refresh();
+});
+
+function showNotification() {
+  if (totalHits === 0) {
+    return Notify.failure(
+      'Sorry, there are no images matching your search query. Please try again.'
+    );
+  }
+
+  if (totalHits > 0 && currentPage === 1) {
+    return Notify.success(`Hooray! We found ${totalHits} images.`);
+  }
+
+  if (gallery.children.length === totalHits) {
+    return Notify.info(
+      "We're sorry, but you've reached the end of search results."
+    );
+  }
+}
