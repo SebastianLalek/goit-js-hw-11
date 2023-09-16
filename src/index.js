@@ -12,13 +12,14 @@ let totalHits;
 let lightbox;
 
 async function fetchImages(value, page) {
-  const imagesData = await getImages(value, page);
-  const imagesArr = imagesData.hits;
-  totalHits = imagesData.totalHits;
+  try {
+    const imagesData = await getImages(value, page);
+    const imagesArr = imagesData.hits;
+    totalHits = imagesData.totalHits;
 
-  const markup = imagesArr
-    .map(el => {
-      return `<div class="photo-card">
+    const markup = imagesArr
+      .map(el => {
+        return `<div class="photo-card">
         <a href="${el.largeImageURL}"><img src="${el.webformatURL}" alt="${el.tags}" loading="lazy" /></a>
         <div class="info">
           <p class="info-item">
@@ -39,12 +40,14 @@ async function fetchImages(value, page) {
           </p>
         </div>
       </div>`;
-    })
-    .join('');
+      })
+      .join('');
 
-  gallery.insertAdjacentHTML('beforeend', markup);
-  lightbox = new SimpleLightbox('.gallery a');
-  showNotification();
+    gallery.insertAdjacentHTML('beforeend', markup);
+    showNotification();
+  } catch (error) {
+    console.log(error);
+  }
 }
 
 form.addEventListener('submit', e => {
@@ -56,7 +59,9 @@ form.addEventListener('submit', e => {
 
   searchQuery = form.searchQuery.value;
 
-  fetchImages(searchQuery, currentPage);
+  fetchImages(searchQuery, currentPage).then(
+    () => (lightbox = new SimpleLightbox('.gallery a'))
+  );
 });
 
 gallery.addEventListener('click', e => e.preventDefault());
@@ -84,7 +89,10 @@ function showNotification() {
     return Notify.success(`Hooray! We found ${totalHits} images.`);
   }
 
-  if (gallery.children.length === totalHits) {
+  if (
+    window.scrollY + window.innerHeight ===
+    document.documentElement.scrollHeight
+  ) {
     return Notify.info(
       "We're sorry, but you've reached the end of search results."
     );
